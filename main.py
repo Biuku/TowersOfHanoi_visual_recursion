@@ -1,6 +1,7 @@
 """ March 27, 2021 """
 
 import pygame
+from collections import namedtuple
 from settings import Settings
 from drawRods import DrawRods
 from ring import Ring
@@ -14,7 +15,9 @@ class Main:
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
         self.drawRods = DrawRods(self.win)
         self.num_rings = 10 ## To be replaced by user input
+
         self.rings = self.make_rings()
+        self.rods = self.make_rods()
 
 
     def get_events(self):
@@ -35,6 +38,7 @@ class Main:
         self.update_screen()
 
 
+
     def draw_page_border(self):
         x, y = self.set.left_border, self.set.top_border
         w, h = self.set.border_w, self.set.border_h
@@ -42,26 +46,27 @@ class Main:
 
         pygame.draw.rect(self.win, c, pygame.Rect(x, y, w, h), thick)
 
-    def update_rings_in_rods():
+
+    def update_rings_in_rods(self):
         """ Push rings to the lowest possible level in each rod """
-        pass
+
+        for ring in self.rings:
+            self.rods.b.add_ring(ring)
 
 
     def update_screen(self):
         """ DRAW RODS """
-
         de = 0
         vers = 2
         self.drawRods.draw(de, vers)
 
 
         """ DRAW RINGS """
-        rods = [0, 1, 2, 0]
-        y = self.set.anchor_ring_y
+        self.rods.a.draw_rings()
+        self.rods.b.draw_rings()
+        self.rods.c.draw_rings()
 
-        for i, ring in enumerate(self.rings):
-            ring.draw(y, rods[0])
-            y -= self.set.rod_w
+        #self.rods.c.test()
 
         pygame.display.update()
 
@@ -79,12 +84,18 @@ class Main:
         return rings
 
 
+    def make_rods(self):
+        """ Rod 0 = A, Rod 1 = B, Rod 2 = C """
+
+        rods = namedtuple('rods', ['a', 'b', 'c'])
+        return rods(Stack("AAA", 0), Stack("BBB", 1), Stack("CCC", 2))
+
+
     def main(self):
         clock = pygame.time.Clock()
 
-
-
-
+        self.update_rings_in_rods() ### Tracer
+        print(self.rods.b.test())
 
         while True:
             clock.tick(self.set.FPS)
@@ -95,8 +106,10 @@ class Main:
             self.get_events()
             self.update()
 
-x = Settings()
-print(x.rod_x_coords)
+
+        """ TRACER -- PROCES MY NAMED TUPLE WORKS """
+
+
 
 if __name__ == "__main__":
     x = Main()
