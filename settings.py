@@ -14,7 +14,7 @@ class Settings:
 
         self.white, self.black = (255, 255, 255), (0, 0, 0)
         self.light_grey, self.grey, self.dark_grey = (200, 200, 200), (100,100,100), (45, 45, 45)
-        self.blue,  = (164, 150, 255),
+        self.blue, self.light_blue = (190, 170, 255), (164, 150, 255),
         self.red, self.light_red = (235, 52, 52), (255, 175, 175)
         self.green = (35, 130, 60)
 

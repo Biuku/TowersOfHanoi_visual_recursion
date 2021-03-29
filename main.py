@@ -1,4 +1,15 @@
-""" March 27, 2021 """
+""" March 29, 2021 """
+
+
+""" THINK I'LL CALL IT A DAY SOON, BUT AN ISSUE THAT EMERGED...
+- I CAN NOW MOVE RINGS, BUT WITHOUT RULES. I NEED TO ADD IN:
+    - WHEN ARE YOU NOT ALLOWED TO MOVE A RUN (CAN ONLY MOVE THE TOP RING)
+    - HOW DOES MAIN CONTROL HOW A RING SNAPS TO ANOTHER ROD? IF THE MOVEMENT IS WITHIN THE RING OBJECT?
+
+- ALSO, I THINK I NEED TO DROP MY NAMED TUPLE.
+    - IF I USED A DICT INSTEAD
+"""
+
 
 import pygame
 from collections import namedtuple
@@ -14,29 +25,54 @@ class Main:
         self.set = Settings()
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
         self.drawRods = DrawRods(self.win)
-        self.num_rings = 10 ## To be replaced by user input
 
-        self.rings = self.make_rings()
-        self.rods = self.make_rods()
+        self.num_rings = 7 ## To be replaced by user input
+        self.rods = self.make_rods_and_rings()
 
+
+    """ EVENTS """
 
     def get_events(self):
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 pygame.quit(), quit()
 
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.mouse_button_down_events()
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                self.mouse_button_up_events()
+
+            elif event.type == pygame.KEYDOWN:
                 self.keydown_events(event)
+
+
+    def mouse_button_down_events(self):
+        if pygame.mouse.get_pressed()[0]:
+            for rod in self.rods:
+                rod.check_moving()
+
+
+    def mouse_button_up_events(self):
+        for rod in self.rods:
+            rod.cancel_moving()
+
 
     def keydown_events(self, event):
         if event.key == pygame.K_q:
             pygame.quit(), quit()
 
 
+    """ UPDATES """
+
     def update(self):
         self.draw_page_border()
-        self.update_screen()
 
+        for rod in self.rods:
+            rod.check_hovering()
+
+        self.update_screen()
 
 
     def draw_page_border(self):
@@ -49,67 +85,57 @@ class Main:
 
     def update_rings_in_rods(self):
         """ Push rings to the lowest possible level in each rod """
-
-        for ring in self.rings:
-            self.rods.b.add_ring(ring)
+        pass
 
 
     def update_screen(self):
-        """ DRAW RODS """
-        de = 0
-        vers = 2
+        ### Draw rods
+        de, vers = 2, 0
         self.drawRods.draw(de, vers)
 
-
-        """ DRAW RINGS """
-        self.rods.a.draw_rings()
-        self.rods.b.draw_rings()
-        self.rods.c.draw_rings()
-
-        #self.rods.c.test()
+        ### Draw rings
+        for rod in self.rods:
+            rod.draw_rings()
 
         pygame.display.update()
 
 
-    def make_rings(self):
-        rings = []
-        num_rings = self.num_rings  ### To be replaced with user input
 
+    """ Initialization things """
+
+    def make_rods_and_rings(self):
+
+        rods_structure = namedtuple('rods', ['a', 'b', 'c'])
+        rods = rods_structure(Stack(0), Stack(1), Stack(2))
+
+        rings = self.make_rings(self.num_rings)
+
+        for ring in rings:
+            rods.a.add_ring(ring)
+
+        return rods
+
+
+    def make_rings(self, num_rings):
+        rings = []
         width_factor = 1 ### Start with a ring 100% the with of max
 
         for ring_name in range(num_rings):
             rings.append(Ring(self.win, width_factor, ring_name))
-            width_factor -= 0.1
+            width_factor -= 0.1 ## Decrease width 10% per ring
 
         return rings
-
-
-    def make_rods(self):
-        """ Rod 0 = A, Rod 1 = B, Rod 2 = C """
-
-        rods = namedtuple('rods', ['a', 'b', 'c'])
-        return rods(Stack("AAA", 0), Stack("BBB", 1), Stack("CCC", 2))
 
 
     def main(self):
         clock = pygame.time.Clock()
 
-        self.update_rings_in_rods() ### Tracer
-        print(self.rods.b.test())
-
         while True:
             clock.tick(self.set.FPS)
             self.win.fill(self.set.white)
 
-            ### Do pygame things here ###
-
             self.get_events()
             self.update()
-
-
-        """ TRACER -- PROCES MY NAMED TUPLE WORKS """
-
-
 
 if __name__ == "__main__":
     x = Main()

@@ -6,16 +6,33 @@ from settings import Settings
 
 
 class Stack:
-    def __init__(self, rod_name, rod_num):
+    def __init__(self, rod_num):
         self.set = Settings()
         self.stack = []
-        self.rod_name = rod_name
         self.rod_num = rod_num
 
 
-    ## Tracer -- to be deleted
-    def test(self):
-        return self.rod_name
+    def check_hovering(self):
+        mx, my = pygame.mouse.get_pos()
+
+        for ring in self.stack:
+            ring.check_hovering(mx, my)
+
+
+    def check_moving(self):
+        for ring in self.stack:
+            ring.check_moving()
+
+    def cancel_moving(self):
+        for ring in self.stack:
+            ring.cancel_moving()
+
+
+    def fit(self, ring):
+        if ring.get_size() < self.get_top_ring_size():
+            return True
+
+        return False
 
 
     def add_ring(self, ring):
@@ -33,10 +50,8 @@ class Stack:
 
         return self.set.ring_max_w
 
-
     def get_num_rings(self):
         return len(self.stack)
-
 
     def draw_rings(self):
         y = self.set.anchor_ring_y
