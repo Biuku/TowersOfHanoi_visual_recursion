@@ -2,7 +2,9 @@
 
 import pygame
 from settings import Settings
-from rods import Rods
+from drawRods import DrawRods
+from ring import Ring
+from stack import Stack
 pygame.init()
 
 
@@ -10,7 +12,9 @@ class Main:
     def __init__(self):
         self.set = Settings()
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
-        self.rods = Rods(self.win)
+        self.drawRods = DrawRods(self.win)
+        self.num_rings = 10 ## To be replaced by user input
+        self.rings = self.make_rings()
 
 
     def get_events(self):
@@ -38,17 +42,49 @@ class Main:
 
         pygame.draw.rect(self.win, c, pygame.Rect(x, y, w, h), thick)
 
+    def update_rings_in_rods():
+        """ Push rings to the lowest possible level in each rod """
+        pass
+
 
     def update_screen(self):
+        """ DRAW RODS """
+
         de = 0
         vers = 2
-        self.rods.draw(de, vers)
+        self.drawRods.draw(de, vers)
+
+
+        """ DRAW RINGS """
+        rods = [0, 1, 2, 0]
+        y = self.set.anchor_ring_y
+
+        for i, ring in enumerate(self.rings):
+            ring.draw(y, rods[0])
+            y -= self.set.rod_w
 
         pygame.display.update()
 
 
+    def make_rings(self):
+        rings = []
+        num_rings = self.num_rings  ### To be replaced with user input
+
+        width_factor = 1 ### Start with a ring 100% the with of max
+
+        for ring_name in range(num_rings):
+            rings.append(Ring(self.win, width_factor, ring_name))
+            width_factor -= 0.1
+
+        return rings
+
+
     def main(self):
         clock = pygame.time.Clock()
+
+
+
+
 
         while True:
             clock.tick(self.set.FPS)

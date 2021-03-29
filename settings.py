@@ -55,16 +55,17 @@ class Settings:
             - All else is relative to this ring
             - Important to anchor to this because a lot of calculations for ring stacking
         """
-        ### Anchor coordinatess
+        ### Anchor variables -- everything else comes off these
         self.left_edge = 100 # x coordinate
-        self.anchor_ring_y = 700
+        self.anchor_ring_y = 600
+        self.gap_between_rods = 300
 
         ## Other settings
         self.rod_h = 400
-        self.ring_max_w = 250
-        self.gap_between_rods = self.ring_max_w + 50
+        self.rod_w = 20
 
-        self.rod_x_coords = self.get_rod_x_coords()
+        self.ring_max_w = self.gap_between_rods - 50
+        self.rod_x_coords = self.get_rod_x_coords() ## List
 
 
     def get_rod_x_coords(self):
