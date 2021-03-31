@@ -3,6 +3,7 @@
 """
 I think the rods module will be 'dumb' -- it won't control where rings land on rods, etc.
 It will just draw rods, and modify which are the 'de', 'aux' and 'vers' rods.
+This is like the background scenery in a movie...
 """
 
 
@@ -47,7 +48,7 @@ class DrawRods:
 
         ## Draw rods and their labels
         for i in range(3):
-            state_name, c = self.get_rod_state(de, vers, i)
+            state_name, c = self.get_state(de, vers, i)
             x = self.rod_x_coords[i]
 
             pygame.draw.rect(self.win, c, pygame.Rect(x, self.y, self.w, self.h)) ## Draw bar
@@ -85,7 +86,7 @@ class DrawRods:
 
 
     ## Helper func
-    def get_rod_state(self, de, vers, i):
+    def get_state(self, de, vers, i):
 
         if i == de:
             return "  de", self.de_colour

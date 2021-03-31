@@ -6,17 +6,25 @@
     - WHEN ARE YOU NOT ALLOWED TO MOVE A RUN (CAN ONLY MOVE THE TOP RING)
     - HOW DOES MAIN CONTROL HOW A RING SNAPS TO ANOTHER ROD? IF THE MOVEMENT IS WITHIN THE RING OBJECT?
 
-- ALSO, I THINK I NEED TO DROP MY NAMED TUPLE.
+1. Implement named tuple data class
+    - Main tracks
+        - Top rings in each rod
+        -
+
+- .
     - IF I USED A DICT INSTEAD
 """
 
 
 import pygame
 from collections import namedtuple
+import numpy as np ## to make the ring widths
 from settings import Settings
 from drawRods import DrawRods
 from ring import Ring
-from stack import Stack
+from rod import Rod
+
+
 pygame.init()
 
 
@@ -26,8 +34,9 @@ class Main:
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
         self.drawRods = DrawRods(self.win)
 
-        self.num_rings = 7 ## To be replaced by user input
-        self.rods = self.make_rods_and_rings()
+        self.num_rings = 6 ## To be replaced by user input
+        self.rods = self.init_rods_and_rings()
+        self.moving_ring = None
 
 
     """ EVENTS """
@@ -51,12 +60,12 @@ class Main:
     def mouse_button_down_events(self):
         if pygame.mouse.get_pressed()[0]:
             for rod in self.rods:
-                rod.check_moving()
+                rod.rod.check_moving()
 
 
     def mouse_button_up_events(self):
         for rod in self.rods:
-            rod.cancel_moving()
+            rod.rod.cancel_moving()
 
 
     def keydown_events(self, event):
@@ -70,7 +79,7 @@ class Main:
         self.draw_page_border()
 
         for rod in self.rods:
-            rod.check_hovering()
+            rod.rod.check_hovering()
 
         self.update_screen()
 
@@ -94,39 +103,39 @@ class Main:
         self.drawRods.draw(de, vers)
 
         ### Draw rings
-        for rod in self.rods:
-            rod.draw_rings()
+        for r in self.rods:
+            r.rod.draw_rings()
 
         pygame.display.update()
 
 
-
     """ Initialization things """
 
-    def make_rods_and_rings(self):
+    def init_rods_and_rings(self):
+        rods_outer = namedtuple('o', ['a', 'b', 'c'])
+        rods_inner = namedtuple('i', ['state', 'rod'])
 
-        rods_structure = namedtuple('rods', ['a', 'b', 'c'])
-        rods = rods_structure(Stack(0), Stack(1), Stack(2))
+        states = ['de', 'aux', 'vers']
+        ids = [0, 1, 2]
 
-        rings = self.make_rings(self.num_rings)
+        ### Make rods data structure
+        makr = [rods_inner(states[i], Rod(ids[i])) for i in range(3)]
+        rods = rods_outer(makr[0], makr[1], makr[2])
 
-        for ring in rings:
-            rods.a.add_ring(ring)
+        for ring in self.make_rings(self.num_rings):
+            rods.a.rod.add_ring(ring)
 
         return rods
 
 
-    def make_rings(self, num_rings):
-        rings = []
-        width_factor = 1 ### Start with a ring 100% the with of max
+    def make_rings(self, rings):
+        names = [x for x in range(1, 11)]
+        widths = np.arange(1, 0, -.1)
 
-        for ring_name in range(num_rings):
-            rings.append(Ring(self.win, width_factor, ring_name))
-            width_factor -= 0.1 ## Decrease width 10% per ring
-
-        return rings
+        return [Ring(self.win, names[i], widths[i]) for i in range(rings)]
 
 
+    """ MAIN """
     def main(self):
         clock = pygame.time.Clock()
 

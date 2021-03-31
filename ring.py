@@ -6,7 +6,7 @@ pygame.init()
 
 
 class Ring:
-    def __init__(self, win, w, name):
+    def __init__(self, win, name, w):
         self.win = win
         self.set = Settings()
 
@@ -40,7 +40,6 @@ class Ring:
 
     def check_hovering(self, mx, my):
         self.hovering = False
-
         x = y = False
 
         if mx >= self.x and mx <= self.x + self.w:
