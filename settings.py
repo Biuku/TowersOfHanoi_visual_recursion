@@ -1,7 +1,7 @@
 """ March 27, 2021 """
 
-
 import pygame
+import numpy as np
 
 class Settings:
 
@@ -18,17 +18,17 @@ class Settings:
         self.red, self.light_red = (235, 52, 52), (255, 175, 175)
         self.green = (35, 130, 60)
 
-        """ COLOUR STYLES """
-        ### 538 white colour style
+        ### COLOUR STYLES ###
+        # 538 white colour style
         self.object1_538 = (217, 240, 222)
         self.object2_538 = (255, 234, 217)
         self.light_grey_object_538 = (221, 221, 221)
 
-        """ COLOUR PALLETT """
+        ### COLOUR PALLETT ###
         self.screen_background_colour = self.white
         self.instructions_font_colour = self.light_grey
 
-        ## Font
+        ### Fonts ###
         self.small_font_size = 10
         self.med_font_size = 12
         self.small_font = pygame.font.SysFont('lucidasans', 10)
@@ -47,15 +47,12 @@ class Settings:
         self.border_colour = self.light_grey
         self.border_thickness = 4
 
-        ## Rods
+        ### Rods
         """
-        Two anchor positions that all else anchor off off:
-        - left_edge: an x coordinate for the start of the base_plate of the rods
-        - bottom_ring_y: a y coordinate for the top of the bottom ring.
-            - All else is relative to this ring
-            - Important to anchor to this because a lot of calculations for ring stacking
+        Two anchor positions -- all else is relative to these:
+            - left_edge: an x coordinate for the start of the base_plate of the rods
+            - bottom_ring_y: a y coordinate for the top of the bottom ring.
         """
-        ### Anchor variables -- everything else comes off these
         self.left_edge = 100 # x coordinate
         self.anchor_ring_y = 600
         self.gap_between_rods = 300
@@ -63,9 +60,12 @@ class Settings:
         ## Other settings
         self.rod_h = 400
         self.rod_w = 20
+        self.rod_x_coords = self.get_rod_x_coords() 
 
+        ### Rings
         self.ring_max_w = self.gap_between_rods - 50
-        self.rod_x_coords = self.get_rod_x_coords() ## List
+        self.ring_widths = self.get_ring_widths()
+        self.ring_y_coords = self.get_ring_y_coords()
 
 
     def get_rod_x_coords(self):
@@ -76,4 +76,22 @@ class Settings:
             x += self.gap_between_rods
             x_coords.append(x)
 
-        return x_coords
+        return tuple(x_coords)
+
+
+    def get_ring_y_coords(self):
+        ry = []
+        y = self.anchor_ring_y
+        for i in range(10):
+            ry.append(y)
+            y -= self.rod_w
+        return tuple(ry)
+
+
+    def get_ring_widths(self):
+        rw = []
+        for factor in np.arange(1, 0, -.1):
+            w = factor * self.ring_max_w
+            rw.append(w)
+
+        return tuple(rw)

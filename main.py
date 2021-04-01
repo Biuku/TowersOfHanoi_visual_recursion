@@ -1,20 +1,28 @@
-""" March 29, 2021 """
+""" APRIL 1, 2021 """
 
 
-""" THINK I'LL CALL IT A DAY SOON, BUT AN ISSUE THAT EMERGED...
-- I CAN NOW MOVE RINGS, BUT WITHOUT RULES. I NEED TO ADD IN:
-    - WHEN ARE YOU NOT ALLOWED TO MOVE A RUN (CAN ONLY MOVE THE TOP RING)
-    - HOW DOES MAIN CONTROL HOW A RING SNAPS TO ANOTHER ROD? IF THE MOVEMENT IS WITHIN THE RING OBJECT?
-
-1. Implement named tuple data class
-    - Main tracks
-        - Top rings in each rod
-        -
-
-- .
-    - IF I USED A DICT INSTEAD
 """
+APRIL 1:
+    - MINOR FEATURE IMPROVEMENTS
+        - RING NAMES ARE DRAWN WITH MOVING RING
+        - ONLY TOP RING CAN MOVE
+    - MAJOR BACK-END IMPROVEMENTS
+        - CONTINUED TO REORGANIZE THE DATA HIERARCHY TO ENABLE MAIN TO PERFORM LOGIC ON RODS/RINGS
 
+NEXT:
+    - ADD THE LOGIC FOR HOW A RING IS MOVED FROM ONE STACK TO ANOTHER
+        - SEE RODS MODULE FOR NOTES
+    - ALSO NEED TO GO THROUGH EVERYTHING AND LOOK FOR REDUNDANT CODE
+        - PROBABLY A FEW THINGS LEFT OVER THAT I NO LONGER USE
+    - I COULD MOVE THE INITIALIZATION CODE TO A MODULE
+        - NOT INIT, BUT THE CODE THAT MAKES THE RINGS AND RODS AT THE START.
+        - IT ONLY RUNS ONCE
+
+REFLECTION
+    - SO CLEAR NOW HOW IMPORTANT IT IS TO HAVE A VERY ORDERLY DATA HIERARCHY FROM THE START
+        - YOU DON'T ALWAYS KNOW WHERE YOU'RE GOING, BUT IF YOU DO... BETTER TO BUILD IN FROM START
+    -
+"""
 
 import pygame
 from collections import namedtuple
@@ -58,12 +66,14 @@ class Main:
 
 
     def mouse_button_down_events(self):
+        """ Set moving flag = True on hovering ring -- check all rings, all rods """
         if pygame.mouse.get_pressed()[0]:
             for rod in self.rods:
                 rod.rod.check_moving()
 
 
     def mouse_button_up_events(self):
+        """ Cancel moving: all rings, all rods """
         for rod in self.rods:
             rod.rod.cancel_moving()
 
@@ -79,22 +89,9 @@ class Main:
         self.draw_page_border()
 
         for rod in self.rods:
-            rod.rod.check_hovering()
+            rod.rod.update_rings()
 
         self.update_screen()
-
-
-    def draw_page_border(self):
-        x, y = self.set.left_border, self.set.top_border
-        w, h = self.set.border_w, self.set.border_h
-        c, thick = self.set.border_colour, self.set.border_thickness
-
-        pygame.draw.rect(self.win, c, pygame.Rect(x, y, w, h), thick)
-
-
-    def update_rings_in_rods(self):
-        """ Push rings to the lowest possible level in each rod """
-        pass
 
 
     def update_screen(self):
@@ -109,6 +106,14 @@ class Main:
         pygame.display.update()
 
 
+    def draw_page_border(self):
+        x, y = self.set.left_border, self.set.top_border
+        w, h = self.set.border_w, self.set.border_h
+        c, thick = self.set.border_colour, self.set.border_thickness
+
+        pygame.draw.rect(self.win, c, pygame.Rect(x, y, w, h), thick)
+
+
     """ Initialization things """
 
     def init_rods_and_rings(self):
@@ -116,28 +121,31 @@ class Main:
         rods_inner = namedtuple('i', ['state', 'rod'])
 
         states = ['de', 'aux', 'vers']
-        ids = [0, 1, 2]
+        rod_ids = [0, 1, 2]
 
         ### Make rods data structure
-        makr = [rods_inner(states[i], Rod(ids[i])) for i in range(3)]
-        rods = rods_outer(makr[0], makr[1], makr[2])
+        r = [rods_inner(states[i], Rod(rod_ids[i])) for i in range(3)]
+        rods = rods_outer(r[0], r[1], r[2])
 
-        for ring in self.make_rings(self.num_rings):
-            rods.a.rod.add_ring(ring)
+        for ring in self.make_rings():
+            rods.c.rod.add_ring(ring)
 
         return rods
 
 
-    def make_rings(self, rings):
-        names = [x for x in range(1, 11)]
-        widths = np.arange(1, 0, -.1)
+    def make_rings(self):
+        IDs = [x for x in range(0, 10)]
+        r = self.num_rings
 
-        return [Ring(self.win, names[i], widths[i]) for i in range(rings)]
+        rings = [Ring(self.win, IDs[i]) for i in range(r)]
+
+        return rings
 
 
     """ MAIN """
     def main(self):
         clock = pygame.time.Clock()
+        print(self.set.ring_y_coords)
 
         while True:
             clock.tick(self.set.FPS)
