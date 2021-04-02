@@ -1,6 +1,7 @@
 """ March 27, 2021 """
 
 import pygame
+from collections import namedtuple
 import numpy as np
 
 class Settings:
@@ -57,10 +58,13 @@ class Settings:
         self.anchor_ring_y = 600
         self.gap_between_rods = 300
 
+        ### Rod ID's
+        self.rod_attributes = self.get_rod_ids()
+
         ## Other settings
         self.rod_h = 400
         self.rod_w = 20
-        self.rod_x_coords = self.get_rod_x_coords() 
+        self.rod_x_coords = self.get_rod_x_coords()
 
         ### Rings
         self.ring_max_w = self.gap_between_rods - 50
@@ -68,8 +72,20 @@ class Settings:
         self.ring_y_coords = self.get_ring_y_coords()
 
 
+
+    def get_rod_ids(self):
+        ### Rod ID's
+        rod_id_nt = namedtuple("rod_ids", ["ids", "nums", "states"])
+
+        ids = ['a', 'b', 'c']
+        nums = [0, 1, 2]
+        states = ['de', 'aux', 'vers']
+
+        return rod_id_nt(ids, nums, states)
+
+
     def get_rod_x_coords(self):
-        x = self.left_edge + (self.gap_between_rods // 2)
+        x = self.left_edge + (self.gap_between_rods // 2) + (self.rod_w // 2)
         x_coords = [x]
 
         for _ in range(2):

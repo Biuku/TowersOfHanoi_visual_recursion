@@ -2,35 +2,20 @@
 
 
 """
-APRIL 1:
-    - MINOR FEATURE IMPROVEMENTS
-        - RING NAMES ARE DRAWN WITH MOVING RING
-        - ONLY TOP RING CAN MOVE
-    - MAJOR BACK-END IMPROVEMENTS
-        - CONTINUED TO REORGANIZE THE DATA HIERARCHY TO ENABLE MAIN TO PERFORM LOGIC ON RODS/RINGS
-
 NEXT:
     - ADD THE LOGIC FOR HOW A RING IS MOVED FROM ONE STACK TO ANOTHER
         - SEE RODS MODULE FOR NOTES
     - ALSO NEED TO GO THROUGH EVERYTHING AND LOOK FOR REDUNDANT CODE
         - PROBABLY A FEW THINGS LEFT OVER THAT I NO LONGER USE
     - I COULD MOVE THE INITIALIZATION CODE TO A MODULE
-        - NOT INIT, BUT THE CODE THAT MAKES THE RINGS AND RODS AT THE START.
-        - IT ONLY RUNS ONCE
-
-REFLECTION
-    - SO CLEAR NOW HOW IMPORTANT IT IS TO HAVE A VERY ORDERLY DATA HIERARCHY FROM THE START
-        - YOU DON'T ALWAYS KNOW WHERE YOU'RE GOING, BUT IF YOU DO... BETTER TO BUILD IN FROM START
-    -
+        - **DONE**
 """
 
 import pygame
 from collections import namedtuple
-import numpy as np ## to make the ring widths
 from settings import Settings
 from drawRods import DrawRods
-from ring import Ring
-from rod import Rod
+from startup import Startup
 
 
 pygame.init()
@@ -43,7 +28,8 @@ class Main:
         self.drawRods = DrawRods(self.win)
 
         self.num_rings = 6 ## To be replaced by user input
-        self.rods = self.init_rods_and_rings()
+        self.startup = Startup(self.num_rings)
+        self.rods = self.startup.init_rods_and_rings()
         self.moving_ring = None
 
 
@@ -88,10 +74,35 @@ class Main:
     def update(self):
         self.draw_page_border()
 
+        ## Look for any ring that's ready to snap to a new rod
+        for rod in self.rods:
+            ring = rod.rod.check_snapper()
+            if ring:
+                self.update_snap(ring)
+                break
+
         for rod in self.rods:
             rod.rod.update_rings()
 
         self.update_screen()
+
+
+    def update_snap(self, ring):
+
+
+        old_rod_id = ring.get_rod()
+        new_rod_id = ring.get_new_rod()
+
+
+        if old_rod_id == new_rod_id:
+            ring.snap_back()
+
+
+        else:
+            self.rods.old_rod.rod.delete_ring()
+            self.rods.new_rod.rod.add_ring()
+
+
 
 
     def update_screen(self):
@@ -114,38 +125,9 @@ class Main:
         pygame.draw.rect(self.win, c, pygame.Rect(x, y, w, h), thick)
 
 
-    """ Initialization things """
-
-    def init_rods_and_rings(self):
-        rods_outer = namedtuple('o', ['a', 'b', 'c'])
-        rods_inner = namedtuple('i', ['state', 'rod'])
-
-        states = ['de', 'aux', 'vers']
-        rod_ids = [0, 1, 2]
-
-        ### Make rods data structure
-        r = [rods_inner(states[i], Rod(rod_ids[i])) for i in range(3)]
-        rods = rods_outer(r[0], r[1], r[2])
-
-        for ring in self.make_rings():
-            rods.c.rod.add_ring(ring)
-
-        return rods
-
-
-    def make_rings(self):
-        IDs = [x for x in range(0, 10)]
-        r = self.num_rings
-
-        rings = [Ring(self.win, IDs[i]) for i in range(r)]
-
-        return rings
-
-
     """ MAIN """
     def main(self):
         clock = pygame.time.Clock()
-        print(self.set.ring_y_coords)
 
         while True:
             clock.tick(self.set.FPS)

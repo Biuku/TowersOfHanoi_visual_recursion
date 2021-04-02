@@ -1,3 +1,5 @@
 *.ipynb
 .ipynb*
 *.pcy
+Jupyter
+__pycache__
