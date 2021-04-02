@@ -25,27 +25,31 @@ Care and feeding (in main) of the 2d namedtuple data structure:
 class Startup:
     def __init__(self, num_rings):
         self.set = Settings()
+        self.attributes = self.set.rod_attributes
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
         self.num_rings = num_rings
 
 
-    def init_rods_and_rings(self):
+    def init_rod_attributes(self):
 
-        rods_outer = namedtuple('o', ['a', 'b', 'c'])
-        rods_inner = namedtuple('i', ['state', 'rod'])
+        rods_outer = namedtuple('o', self.attributes.ids)
+        rods_inner = namedtuple('i', ['state', 'num'])
 
-        states = ['de', 'aux', 'vers']
-        rod_ids = [0, 1, 2]
+        r = [rods_inner(self.attributes.states[i], self.attributes.nums[i]) for i in range(3)]
 
-        ### Make rods data structure
-        r = [rods_inner(states[i], Rod(rod_ids[i])) for i in range(3)]
-        rods = rods_outer(r[0], r[1], r[2])
+        return rods_outer(r[0], r[1], r[2])
+
+
+    def init_rods_with_rings(self):
+        rods = []
+
+        for i in range(3):
+            rods.append(Rod(i))
 
         for ring in self.make_rings():
-            rods.c.rod.add_ring(ring)
+            rods[2].add_ring(ring)
 
         return rods
-
 
     def make_rings(self):
         IDs = [x for x in range(0, 10)]

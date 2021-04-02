@@ -20,6 +20,7 @@ class Rod:
     def add_ring(self, ring):
         self.stack.insert(0, ring)
         ring_pos = len(self.stack) - 1
+
         ring.update_rod(self.id, ring_pos)
 
 
@@ -32,6 +33,11 @@ class Rod:
 
 
     """ SNAPPING """
+
+    def get_top_size(self):
+        if self.stack:
+            return self.stack[0].get_size()
+        return 0
 
     def remove_ring(self):
         self.stack.pop(0)
@@ -58,7 +64,6 @@ class Rod:
     def check_moving(self):
         if self.stack:
             self.stack[0].check_moving()
-            print(self.stack[0].id)
 
     def cancel_moving(self):
         for ring in self.stack:

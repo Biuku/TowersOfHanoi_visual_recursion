@@ -76,6 +76,7 @@ class Ring:
             return True
         return False
 
+
     def cancel_moving(self):
         if self.moving:
             self.moving = False
@@ -102,17 +103,16 @@ class Ring:
         self.new_rod = None
 
         ### Centre ring on rod -- adjust for ring's w and rod's w
-        self.rod = rod
 
-
-
-        x = self.rod_x_coords[self.rod]
+        x = self.rod_x_coords[rod]
         self.x = self.update_rod_x(x)
 
         ### Update Y
         self.y = self.set.ring_y_coords[pos]
 
+        self.rod = rod
         self.pos = pos
+
 
 
     def update_rod_x(self, x):

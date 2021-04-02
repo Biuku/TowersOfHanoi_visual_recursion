@@ -29,7 +29,8 @@ class Main:
 
         self.num_rings = 6 ## To be replaced by user input
         self.startup = Startup(self.num_rings)
-        self.rods = self.startup.init_rods_and_rings()
+        self.rod_attributes = self.startup.init_rod_attributes()
+        self.rods = self.startup.init_rods_with_rings()
         self.moving_ring = None
 
 
@@ -55,13 +56,13 @@ class Main:
         """ Set moving flag = True on hovering ring -- check all rings, all rods """
         if pygame.mouse.get_pressed()[0]:
             for rod in self.rods:
-                rod.rod.check_moving()
+                rod.check_moving()
 
 
     def mouse_button_up_events(self):
         """ Cancel moving: all rings, all rods """
         for rod in self.rods:
-            rod.rod.cancel_moving()
+            rod.cancel_moving()
 
 
     def keydown_events(self, event):
@@ -76,32 +77,32 @@ class Main:
 
         ## Look for any ring that's ready to snap to a new rod
         for rod in self.rods:
-            ring = rod.rod.check_snapper()
+            ring = rod.check_snapper()
             if ring:
                 self.update_snap(ring)
                 break
 
         for rod in self.rods:
-            rod.rod.update_rings()
+            rod.update_rings()
 
         self.update_screen()
 
 
+git
     def update_snap(self, ring):
 
+        old_rod = self.rods[ring.get_rod()]
+        new_rod = self.rods[ring.get_new_rod()]
 
-        old_rod_id = ring.get_rod()
-        new_rod_id = ring.get_new_rod()
-
-
-        if old_rod_id == new_rod_id:
+        if old_rod == new_rod:
             ring.snap_back()
 
+        if ring.get_size() < new_rod.get_top_size():
+            ring.snap_back()
 
         else:
-            self.rods.old_rod.rod.delete_ring()
-            self.rods.new_rod.rod.add_ring()
-
+            old_rod.remove_ring()
+            new_rod.add_ring(ring)
 
 
 
@@ -111,8 +112,8 @@ class Main:
         self.drawRods.draw(de, vers)
 
         ### Draw rings
-        for r in self.rods:
-            r.rod.draw_rings()
+        for rod in self.rods:
+            rod.draw_rings()
 
         pygame.display.update()
 
