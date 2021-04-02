@@ -88,7 +88,7 @@ class Main:
         self.update_screen()
 
 
-git
+
     def update_snap(self, ring):
 
         old_rod = self.rods[ring.get_rod()]
