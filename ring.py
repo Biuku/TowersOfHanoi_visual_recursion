@@ -1,168 +1,110 @@
 """ March 27, 2021 """
 
 import pygame
-from settings import Settings
-pygame.init()
-
+from setup.settings import Settings
 
 class Ring:
     def __init__(self, win, id):
+        pygame.init()
         self.win = win
         self.set = Settings()
         self.id = id
-        self.rod_x_coords = self.set.rod_x_coords
+
+        ## Positioning
         self.rod = None ## Which of the 3 rods
         self.pos = None ## Position in the rod stack
+
+        ## Flags
+        self.hovering = False
+        self.moving = False
+        self.snap = False ## Flag ring as wanting to move to new rod (unclick after moving)
+        self.new_rod = None ## For Main to access the new rod
 
         ## Colours
         self.colour = self.set.blue
         self.hover_colour = self.set.light_blue
 
-        ## Coordinates and size
+        ## Coordinates
         self.x = self.y = 1000 ## Temp
         self.w = self.set.ring_widths[self.id]
         self.h = self.set.rod_w ## -1 so I can draw a border on it
-
         self.id_x = 1000 ## Temp
 
         ## To centre ring on any rod
-        self.half_ring = self.w // 2
+        #self.half_ring = self.w // 2
         self.half_rod = self.set.rod_w // 2
 
-        ## To snap rings to rods
-        self.rod_x_spans = self.get_rod_x_spans()
-
-        ## Flags
-        self.hovering = False
-        self.moving = False
-        self.snap = None ## Flag ring as wanting to move to new rod (unclick after moving)
-        self.new_rod = None ## For Main to access the new rod
+        ##Lookups
+        self.rod_x_coords = self.set.rod_x_coords
+        self.rod_x_spans = self.set.rod_x_spans
 
 
     ### Main body of class ###
 
-    def get_size(self):
-        return self.id
+    def update_rod(self, rod, pos):
+        """Attaches ring to rod. Used to add ring to rod, and when snapping  back"""
 
-    ### Moving ###
-    def check_moving(self):
-        if self.hovering:
-            #if self.y == self.set.ring_y_coords[top_ring]:
-            self.moving = True
-
-
-    ### Snapping
-
-    def get_new_rod(self):
-        return self.new_rod
-
-    def get_rod(self):
-        return self.rod
-
-
-    def snap_back(self):
-        """ Return ring to rod it came from after failed attempt to change rods """
-        self.update_rod(self.rod, self.pos)
         self.snap = False
         self.new_rod = None
 
-        #self.y = self.set.ring_y_coords[pos]
-        #x = self.rod_x_coords[self.rod]
-        #self.x = self.update_rod_x(x)
+        ### Centre ring on rod
+        x = self.rod_x_coords[rod]
+        self.x = self.centre_ring(x)
+
+        self.y = self.set.ring_y_coords[pos]
+        self.rod, self.pos = rod, pos
 
 
-    def check_snapping(self):
-        if self.snap:
-            return True
-        return False
+    """ MOVING """
 
+    def check_moving(self):
+        if self.hovering:
+            self.moving = True
+
+    def move(self, mx, my):
+        if self.moving:
+            self.x = self.centre_ring(mx)
+            self.y = my
 
     def cancel_moving(self):
-        if self.moving:
-            self.moving = False
+        """
+        - Identifies which rod to snap to after moving.
+        - Sets snap flag to True so Main snaps the ring to a rod.
+        """
 
-            ### Check whether the ring should snap to a new rod
-            new_rod = self.rod
+        if self.moving:
+            self.new_rod = self.rod # Defaul: snap back to old rod
             mx, _ = pygame.mouse.get_pos()
 
             for i, rod_coords in enumerate(self.rod_x_spans):
                 x1, x2 = rod_coords
                 if mx > x1 and mx < x2:
-                    new_rod = i
+                    self.new_rod = i
 
-            self.snap = True ## Tell Main that this ring wants to snap to a rod
-            self.new_rod = new_rod
-
-
-
-    def update_rod(self, rod, pos):
-        """Attaches a ring to a rod. Used by rod/add_ring() and self.cancel_moving() """
-
-        ## Cancel any flags from snapping after moving
-        self.snap = False
-        self.new_rod = None
-
-        ### Centre ring on rod -- adjust for ring's w and rod's w
-
-        x = self.rod_x_coords[rod]
-        self.x = self.update_rod_x(x)
-
-        ### Update Y
-        self.y = self.set.ring_y_coords[pos]
-
-        self.rod = rod
-        self.pos = pos
+            self.moving = False
+            self.snap = True
 
 
-
-    def update_rod_x(self, x):
+    def centre_ring(self, x):
         """ Used by self.update_rod() and self.move() """
         self.id_x = x + 5
-        x += self.half_rod - self.half_ring
-
-        return x
+        return x - (self.w // 2) + (self.set.rod_w // 2)
 
 
-
-
-
-    """ Foundation stuff -- don't need to change it """
-
-    def move(self, mx, my):
-        if self.moving:
-            self.x = self.update_rod_x(mx)
-            self.y = my
-
-    def get_rod_x_spans(self):
-        reach = self.set.ring_max_w // 2 ## look half the largest ring either side of a rod
-
-        spans = []
-        for rod in self.rod_x_coords:
-            x1 = rod + self.half_rod - reach
-            x2 = rod + self.half_rod + reach
-            spans.append( (x1, x2) )
-
-        return tuple(spans)
-
+    """ HOVERING """
 
     def check_hovering(self, mx, my):
         self.hovering = False
-        x = y = False
 
-        if mx >= self.x and mx <= self.x + self.w:
-            x = True
+        if mx >= self.x and mx <= (self.x + self.w):
+            if my >= self.y and my <= (self.y + self.h):
+                self.hovering = True
 
-        if my >= self.y and my <= self.y + self.h:
-            y = True
 
-        if x and y:
-            self.hovering = True
-
+    """ DRAW RING """
 
     def draw(self):
-
-        x = self.x
-        y = self.y
+        x, y = self.x, self.y
         colour = self.colour
 
         if self.hovering:
@@ -174,9 +116,24 @@ class Ring:
         self.draw_ring_id(y)
 
     def draw_ring_id(self, y):
-        ring_id = str(self.id)
-        #ring_id = str(self.y)
-        colour = self.set.white
+        ring_id_text = self.set.med_font.render(str(self.id), True, self.set.white)
+        self.win.blit( ring_id_text, (self.id_x, y))
 
-        draw_name = self.set.med_font.render(ring_id, True, colour)
-        self.win.blit( draw_name, (self.id_x, y))
+
+    """ FOR SNAP RINGS """
+
+    def get_snap(self):
+        return self.snap
+
+    def get_old_new_rods(self):
+        """ While changing rods, pass origin and destination back to main"""
+        return self.rod, self.new_rod
+
+    def get_size(self):
+        """ Used by Main to check whether ring can fit on new stack of rods """
+        return self.id
+
+    def snap_back(self):
+        """ On failed attempt to change rods, return ring to rod it came from"""
+        self.update_rod(self.rod, self.pos)
+        self.new_rod = None
