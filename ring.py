@@ -4,7 +4,7 @@ import pygame
 from setup.settings import Settings
 
 class Ring:
-    def __init__(self, win, id):
+    def __init__(self, win, id, w):
         pygame.init()
         self.win = win
         self.set = Settings()
@@ -26,7 +26,7 @@ class Ring:
 
         ## Coordinates
         self.x = self.y = 1000 ## Temp
-        self.w = self.set.ring_widths[self.id]
+        self.w = w
         self.h = self.set.rod_w ## -1 so I can draw a border on it
         self.id_x = 1000 ## Temp
 
@@ -129,7 +129,7 @@ class Ring:
         """ While changing rods, pass origin and destination back to main"""
         return self.rod, self.new_rod
 
-    def get_size(self):
+    def get_id(self):
         """ Used by Main to check whether ring can fit on new stack of rods """
         return self.id
 

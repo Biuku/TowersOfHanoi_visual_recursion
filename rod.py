@@ -27,6 +27,7 @@ class Rod:
             ring.draw()
 
 
+
     """ SNAPPING """
 
     def check_snap_ring(self):
@@ -36,10 +37,11 @@ class Rod:
             if ring.get_snap():
                 return ring
 
-    def get_top_size(self):
+    def get_top_id(self):
+        """ Pass the id as proxy for size up to Main """
         if self.stack:
-            return self.stack[0].get_size()
-        return 0
+            return self.stack[0].get_id()
+        return float('inf') ## If empty, send the largest number
 
     def remove_ring(self):
         self.stack.pop(0)
@@ -62,3 +64,8 @@ class Rod:
         ring_pos = len(self.stack) - 1
 
         ring.update_rod(self.id, ring_pos)
+
+
+    def get_len(self):
+        """ Check if the game is won """
+        return len(self.stack)

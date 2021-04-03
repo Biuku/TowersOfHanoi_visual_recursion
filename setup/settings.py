@@ -28,6 +28,7 @@ class Settings:
         self.small_font = pygame.font.SysFont('lucidasans', 10)
         self.med_font = pygame.font.SysFont('lucidasans', 12)
         self.rod_name_font = pygame.font.SysFont('lucidasans', 14)
+        self.end_game_font = pygame.font.SysFont('lucidsans', 54)
 
         ## Pager border
         self.border_gap = .03 ## In percent
@@ -60,12 +61,24 @@ class Settings:
 
         ### Rings
         self.ring_max_w = self.gap_between_rods - 50
+
         self.ring_widths = self.get_ring_widths()
+
         self.ring_y_coords = self.get_ring_y_coords()
 
         ## Lookups
+
+
         self.rod_x_coords = self.get_rod_x_coords() ## lookup of left edges of rods
         self.rod_x_spans = self.get_rod_x_spans() ## For snapping rings to new rods
+
+
+    def get_ring_widths(self):
+        """ Lookup: provides pixel-width of rings when initialized """
+        ring_w = [int(self.ring_max_w * x) for x in np.arange(1, 0, -0.1)]
+
+        return tuple(ring_w)
+
 
 
     def get_rod_attributes(self):
@@ -95,12 +108,6 @@ class Settings:
         ring_y = [self.anchor_ring_y - (self.rod_w * x) for x in range(10)]
         return tuple(ring_y)
 
-
-    def get_ring_widths(self):
-        """ Lookup: provides pixel-width of rings when initialized """
-
-        ring_w = [self.ring_max_w * x for x in np.arange(1, 0, -0.1)]
-        return tuple(ring_w)
 
 
     def get_rod_x_spans(self):

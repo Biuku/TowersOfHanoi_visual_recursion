@@ -20,7 +20,7 @@ class Main:
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
         self.background = Background(self.win)
 
-        self.num_rings = 9 ## To be replaced by user input
+        self.num_rings = 3 ## To be replaced by user input
         self.setup = Setup(self.num_rings)
         self.rod_attributes = self.setup.init_rod_attributes()  ## Not sure if I need this
         self.rods = self.setup.init_rods_with_rings()
@@ -66,7 +66,15 @@ class Main:
 
         self.update_snap(snap_ring)
 
+        self.check_win()
+
         self.update_screen()
+
+
+    def check_win(self):
+        if self.rods[2].get_len() == self.num_rings:
+            win_game_text = self.set.end_game_font.render("You win!!!", True, self.set.grey)
+            self.win.blit( win_game_text, (400, 100))
 
 
     def update_snap(self, snap_ring):
@@ -80,8 +88,8 @@ class Main:
         if old_rod == new_rod:
             snap_ring.snap_back()
 
-        ## Check if ring fits on the new rod's stack of rings
-        if snap_ring.get_size() < new_rod.get_top_size():
+        ## Check new ring is smaller than top ring on the rod
+        if snap_ring.get_id() > new_rod.get_top_id():
             snap_ring.snap_back()
 
         else:

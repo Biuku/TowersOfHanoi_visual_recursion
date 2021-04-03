@@ -20,7 +20,7 @@ class Setup:
         rods = [Rod(i) for i in range(3)]
 
         for ring in self.init_rings():
-            rods[2].add_ring(ring)
+            rods[0].add_ring(ring)
 
         return rods
 
@@ -28,8 +28,13 @@ class Setup:
     def init_rings(self):
         """ Initialize n rings -- called while initializing rods """
 
-        IDs = [x for x in range(0, 10)]
-        rings = [Ring(self.win, IDs[i]) for i in range(self.num_rings)]
+        #IDs = [x for x in range(0, 10)]
+        n = self.num_rings
+        IDs = [x for x in range(n, 0, -1)] ## n... 3, 2, 1
+        widths = self.set.ring_widths[:n] ## 600, 540, 480 ...
+
+
+        rings = [Ring(self.win, IDs[i], widths[i]) for i in range(n)]
 
         return tuple(rings)
 
