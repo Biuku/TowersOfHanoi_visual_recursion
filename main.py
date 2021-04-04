@@ -27,15 +27,8 @@ class Main:
         self.rod_attributes = self.setup.init_rod_attributes()  ## Not sure if I need this
         self.rods = self.setup.init_rods_with_rings()
 
-        ### Non-functional definitions -- just for painting the background
-        # self.de = 0
-        # self.aux = 1
-        # self.vers = 2
-
         ### ALGO STUFF ###
         self.instructions = []
-        # self.state_instructions = []
-
 
     """ EVENTS """
 
