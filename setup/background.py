@@ -27,6 +27,7 @@ class Background:
         self.bottom_bar_w = (3 * self.gap) + self.w
 
         self.colour = self.set.light_grey_object_538
+        self.font_colour = self.set.grey
         self.de_colour = self.set.light_red
         self.vers_colour = self.set.object2_538
         self.rod_border_colour = self.set.white
@@ -60,12 +61,12 @@ class Background:
 
         ### For sure I could use my named tuple here, but going to do a more proven way first
         if rod.get_state() == "de":
-            return "  de", self.de_colour
+            return "From", self.de_colour
 
         if rod.get_state() == "vers":
-            return "vers", self.vers_colour
+            return "  To", self.vers_colour
 
-        return " aux", self.colour
+        return "Extra", self.colour
 
 
     def draw_rods_bottom_bar(self):
@@ -84,13 +85,13 @@ class Background:
         ## Draw state name above rod
         x = master_x - 5
         y = self.y - 30
-        state_name_text = self.set.med_font.render(state_name, True, self.colour)
+        state_name_text = self.set.med_font.render(state_name, True, self.font_colour)
         self.win.blit( state_name_text, (x, y))
 
         ## Draw fixed name below rod
         x = master_x + 7
         y = self.rods_bottom + self.w + 5
-        fixed_name_text = self.set.rod_name_font.render(self.names[i], True, self.colour)
+        fixed_name_text = self.set.rod_name_font.render(self.names[i], True, self.font_colour)
         self.win.blit( fixed_name_text, (x, y))
 
 

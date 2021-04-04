@@ -22,13 +22,13 @@ class Main:
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
         self.background = Background(self.win)
 
-        self.num_rings = 4 ## To be replaced by user input
+        self.num_rings = 7 ## To be replaced by user input
         self.setup = Setup(self.num_rings)
-        self.rod_attributes = self.setup.init_rod_attributes()  ## Not sure if I need this
         self.rods = self.setup.init_rods_with_rings()
 
         ### ALGO STUFF ###
         self.instructions = []
+        self.tick_count = 0 ## To slow down the status change
 
     """ EVENTS """
 
@@ -54,6 +54,8 @@ class Main:
     def keydown_events(self, event):
         if event.key == pygame.K_SPACE:
             """ Advance 1 step in the 'recursion' """
+
+            pygame.time.delay(100) ## Wait 1/10 of a second before acting -- user comfort
             self.algo_mover()
 
         if event.key == pygame.K_q:
@@ -63,22 +65,43 @@ class Main:
     """    *** THE ALGO ***    """
 
     def algo_mover(self):
-        """ Moves one ring """
+        """ Moves one ring, updates state """
+        self.tick_count = 0 ## reset to start clock on delayed state change
 
+        ### Move 1 ring ###
         de, aux, vers = self.instructions.pop(0)
+
+        de = self.rods[de]
+        aux = self.rods[aux]
+        vers = self.rods[vers]
 
         ring = de.pop_ring()
         vers.add_ring(ring)
+
+        ### Update the states after -- moved this to main update
+        #self.state_updater()
+
+    def state_updater(self):
+        ##For states, look one move ahead
+        de, aux, vers = self.instructions[0]
+
+        self.rods[de].set_state('de')
+        self.rods[aux].set_state('aux')
+        self.rods[vers].set_state('vers')
 
 
     """ INITIATE FUNCTIONAL RECURSION ALGO """
 
     def make_instructions(self):
         """ Called once from Main. Pre-builds the solution steps. """
-        de, aux, vers = self.rods
+        #de, aux, vers = self.rods
+        de, aux, vers = 0, 1, 2
         n = self.num_rings
 
         self.recur(n, de, aux, vers)
+
+        ### Add dummy tuple at end so I can look one move ahead on states
+        self.instructions.append((0, 0, 0))
 
 
     """ FUNCTIONAL RECURSION ALGO """
@@ -92,15 +115,19 @@ class Main:
 
         self.instructions.append((de, aux, vers))
 
-
         self.recur(n-1, aux, de, vers)
 
-
     """ ************************************** """
+
 
     """ UPDATES """
 
     def update(self):
+
+        self.tick_count += 1
+        if self.tick_count == 7:
+            self.state_updater()
+
 
         snap_ring = None
 
@@ -147,9 +174,7 @@ class Main:
     def update_screen(self):
 
         ### Draw Background -- pass self.rods to unpack states
-        # self.background.draw(self.de, self.vers)
         self.background.draw(self.rods)
-
 
         ### Draw rings
         for rod in self.rods:
@@ -163,6 +188,7 @@ class Main:
         clock = pygame.time.Clock()
 
         self.make_instructions()
+        self.state_updater()
 
         while True:
             clock.tick(self.set.FPS)
