@@ -5,12 +5,12 @@ from setup.settings import Settings
 
 
 class Rod:
-    def __init__(self, id):
+    def __init__(self, id, state):
         pygame.init()
         self.set = Settings()
         self.stack = []
         self.id = id # rod_ids = [0, 1, 2]
-
+        self.state = state
 
 
     """ ALWAYS PERFORMED """
@@ -27,8 +27,7 @@ class Rod:
             ring.draw()
 
 
-
-    """ SNAPPING """
+    """ SNAPPING -- WHEN THE USER TRIES TO MOVE A RING """
 
     def check_snap_ring(self):
         """ Pass a ready-to-snap ring back to Main """
@@ -46,6 +45,21 @@ class Rod:
     def remove_ring(self):
         self.stack.pop(0)
 
+
+    """ ****************************************************** """
+    """ Algo """
+
+    def pop_ring(self):
+        return self.stack.pop(0)
+
+    def set_state(self, state):
+        self.state = state
+
+    def get_state(self):
+        return self.state
+
+
+    """ ****************************************************** """
 
     """ MOVING """
     def check_moving(self):

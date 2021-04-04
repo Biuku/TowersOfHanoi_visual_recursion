@@ -1,10 +1,12 @@
-""" APRIL 1, 2021 """
+""" APRIL 4, 2021 """
 
 """
-NEXT:
-    - Reverse the numbers of the rings -- high number should be wider
-    - ALSO NEED TO GO THROUGH EVERYTHING AND LOOK FOR REDUNDANT CODE
-        - PROBABLY A FEW THINGS LEFT OVER THAT I NO LONGER USE
+I AM BUILDING THE ALGO
+STEP 1. FUNCTIONAL ALGO:
+    • Build algo in main code
+    • Test with only 3 Rings
+    • Spacebar advances algo 1 step
+    • No colour changes or anything else – it just moves the rings
 """
 
 import pygame
@@ -20,13 +22,19 @@ class Main:
         self.win = pygame.display.set_mode((self.set.win_w, self.set.win_h))
         self.background = Background(self.win)
 
-        self.num_rings = 3 ## To be replaced by user input
+        self.num_rings = 4 ## To be replaced by user input
         self.setup = Setup(self.num_rings)
         self.rod_attributes = self.setup.init_rod_attributes()  ## Not sure if I need this
         self.rods = self.setup.init_rods_with_rings()
 
-        self.de = 0
-        self.vers = 2
+        ### Non-functional definitions -- just for painting the background
+        # self.de = 0
+        # self.aux = 1
+        # self.vers = 2
+
+        ### ALGO STUFF ###
+        self.instructions = []
+        # self.state_instructions = []
 
 
     """ EVENTS """
@@ -44,12 +52,58 @@ class Main:
 
             ### Quitting ###
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    pygame.quit(), quit()
+                self.keydown_events(event)
 
             elif event.type == pygame.QUIT:
                 pygame.quit(), quit()
 
+
+    def keydown_events(self, event):
+        if event.key == pygame.K_SPACE:
+            """ Advance 1 step in the 'recursion' """
+            self.algo_mover()
+
+        if event.key == pygame.K_q:
+            pygame.quit(), quit()
+
+
+    """    *** THE ALGO ***    """
+
+    def algo_mover(self):
+        """ Moves one ring """
+
+        de, aux, vers = self.instructions.pop(0)
+
+        ring = de.pop_ring()
+        vers.add_ring(ring)
+
+
+    """ INITIATE FUNCTIONAL RECURSION ALGO """
+
+    def make_instructions(self):
+        """ Called once from Main. Pre-builds the solution steps. """
+        de, aux, vers = self.rods
+        n = self.num_rings
+
+        self.recur(n, de, aux, vers)
+
+
+    """ FUNCTIONAL RECURSION ALGO """
+    def recur(self, n, de, aux, vers):
+
+        if n == 1:
+            self.instructions.append((de, aux, vers))
+            return
+
+        self.recur(n-1, de, vers, aux)
+
+        self.instructions.append((de, aux, vers))
+
+
+        self.recur(n-1, aux, de, vers)
+
+
+    """ ************************************** """
 
     """ UPDATES """
 
@@ -99,8 +153,10 @@ class Main:
 
     def update_screen(self):
 
-        ### Draw Background -- 'de', 'vers' are dynamic states of rods
-        self.background.draw(self.de, self.vers)
+        ### Draw Background -- pass self.rods to unpack states
+        # self.background.draw(self.de, self.vers)
+        self.background.draw(self.rods)
+
 
         ### Draw rings
         for rod in self.rods:
@@ -112,6 +168,8 @@ class Main:
     """ MAIN """
     def main(self):
         clock = pygame.time.Clock()
+
+        self.make_instructions()
 
         while True:
             clock.tick(self.set.FPS)

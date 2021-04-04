@@ -35,17 +35,19 @@ class Background:
 
 
 
-    def draw(self, de, vers):
-        """ Passes 'de' and 'vers' as ints -- to mark rods """
+    # def draw(self, de, vers):
+    def draw(self, rods):
+        # """ Passes 'de' and 'vers' as ints -- to mark rods """
+        """ Passes list containing rod objects -- to determine 'de' and 'vers' states -- to mark rods """
         self.draw_page_border()
         self.draw_rods_bottom_bar()
-        self.draw_rods(de, vers)
+        self.draw_rods(rods)
 
 
-    def draw_rods(self, de, vers):
-        """ Draw 3 rods and their labels """
-        for i in range(3):
-            state_name, c = self.get_state(de, vers, i)
+    def draw_rods(self, rods):
+        """ Draw 3 rods and their labels -- is passed 3 rod objects """
+        for i, rod in enumerate(rods):
+            state_name, c = self.get_state(rod)
             x = self.set.rod_x_coords[i]
 
             pygame.draw.rect(self.win, c, pygame.Rect(x, self.y, self.w, self.h)) ## Draw bar
@@ -54,13 +56,13 @@ class Background:
             self.draw_rod_labels(x, i, state_name)
 
 
-    def get_state(self, de, vers, i):
-        """ Helper function to match rod state when iterating through rods """
+    def get_state(self, rod):
 
-        if i == de:
+        ### For sure I could use my named tuple here, but going to do a more proven way first
+        if rod.get_state() == "de":
             return "  de", self.de_colour
 
-        elif i == vers:
+        if rod.get_state() == "vers":
             return "vers", self.vers_colour
 
         return " aux", self.colour

@@ -17,7 +17,9 @@ class Setup:
 
     def init_rods_with_rings(self):
         """ Build 3 rods and n rings, with all rings on the first rod """
-        rods = [Rod(i) for i in range(3)]
+        states = ['de', 'aux', 'vers'] ## This probably exists in settings...
+
+        rods = [Rod(i, states[i]) for i in range(3)]
 
         for ring in self.init_rings():
             rods[0].add_ring(ring)
@@ -28,7 +30,6 @@ class Setup:
     def init_rings(self):
         """ Initialize n rings -- called while initializing rods """
 
-        #IDs = [x for x in range(0, 10)]
         n = self.num_rings
         IDs = [x for x in range(n, 0, -1)] ## n... 3, 2, 1
         widths = self.set.ring_widths[:n] ## 600, 540, 480 ...
